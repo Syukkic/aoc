@@ -18,7 +18,7 @@ fn main() {
         invalid_id_sumup += result.iter().sum::<i64>();
     });
 
-    println!("Password: {}", invalid_id_sumup)
+    println!("Answer: {}", invalid_id_sumup)
 }
 
 fn filter_invalid_ids(ids_range: &str) -> Vec<i64> {
@@ -36,11 +36,31 @@ fn filter_invalid_ids(ids_range: &str) -> Vec<i64> {
         .ok()
         .unwrap_or(0);
 
-    (begin..=end)
-        .filter(|&n| {
-            let s = n.to_string();
-            let length = s.len();
-            length % 2 == 0 && s.split_at(length / 2).0 == s.split_at(length / 2).1
-        })
-        .collect()
+    (begin..=end).filter(|&n| is_invalid(n)).collect()
+}
+
+fn is_invalid(n: i64) -> bool {
+    if n <= 10 {
+        return false;
+    }
+    let s = n.to_string();
+    let bytes = s.as_bytes();
+    let length = bytes.len();
+
+    for part_length in 1..=length / 2 {
+        if length.is_multiple_of(part_length) {
+            let pattern = &bytes[0..part_length];
+            let mut is_repeat = true;
+            for chunk in bytes.chunks(part_length) {
+                if chunk != pattern {
+                    is_repeat = false;
+                    break;
+                }
+            }
+            if is_repeat {
+                return true;
+            };
+        }
+    }
+    false
 }
